@@ -32,30 +32,35 @@ function HistoryPage() {
 
   }, []);
 
-  const fetchHistory =
-    async () => {
+  const fetchHistory = async () => {
+    try {
+      setLoading(true);
 
-      try {
-
-        setLoading(true);
-
-        const data =
-          await getPredictions();
-
-        setHistory(data);
-
-      } catch (err) {
-
-        setError(
-          err.message
-        );
-
-      } finally {
-
-        setLoading(false);
-
+      // 1. Ambil data pengguna yang sedang login dari localStorage
+      const storedUser = localStorage.getItem("user");
+      if (!storedUser) {
+        setError("Silakan login terlebih dahulu untuk melihat riwayat.");
+        return;
       }
-    };
+      const user = JSON.parse(storedUser);
+
+      // 2. Tembak API ke Node.js menggunakan ID pengguna asli dari MySQL
+      const response = await fetch(`http://localhost:5000/api/user/history/${user.id}`);
+      const result = await response.json();
+
+      if (response.ok && result.status === "success") {
+        // 3. Masukkan array data dari database langsung ke state history React
+        setHistory(result.data); 
+      } else {
+        setError(result.message || "Gagal memuat riwayat pendaftaran data.");
+      }
+    } catch (err) {
+      console.error("Error sambungan API History:", err);
+      setError("Gagal terhubung ke server backend.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex bg-[#f7f9fc] min-h-screen">
