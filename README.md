@@ -81,6 +81,8 @@ URL lokal:
 - Backend health: `http://localhost:5000/api/health`
 - AI docs: `http://localhost:8000/docs`
 
+Catatan Linux watcher limit: backend dev memakai `nodemon --legacy-watch` dan frontend Vite memakai polling watcher agar tidak gagal dengan error `ENOSPC: System limit for number of file watchers reached`.
+
 ## Endpoint Integrasi
 
 Backend utama:
