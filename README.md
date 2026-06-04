@@ -83,6 +83,8 @@ URL lokal:
 
 Catatan Linux watcher limit: backend dev memakai `nodemon --legacy-watch` dan frontend Vite memakai polling watcher agar tidak gagal dengan error `ENOSPC: System limit for number of file watchers reached`.
 
+Catatan database: jika MySQL lokal belum aktif atau tabel belum dibuat, backend otomatis memakai local JSON store di `backend/data/local-store.json` untuk kebutuhan demo register, login, dan history. Folder `backend/data/` tidak ikut dipush.
+
 ## Endpoint Integrasi
 
 Backend utama:

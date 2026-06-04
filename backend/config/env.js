@@ -7,5 +7,6 @@ module.exports = {
   AI_SAMPLE_DATA_PATH:
     process.env.AI_SAMPLE_DATA_PATH || '../../ai/household_daily_clean.csv',
   TARIFF_PER_KWH: Number(process.env.TARIFF_PER_KWH || 1444.7),
+  LOCAL_STORE_PATH: process.env.LOCAL_STORE_PATH || 'data/local-store.json',
   NODE_ENV: process.env.NODE_ENV || 'development',
 };

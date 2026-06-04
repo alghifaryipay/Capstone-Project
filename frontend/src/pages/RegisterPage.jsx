@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"; // 👈 1. Import Axios
 import { useLanguage } from "../context/LanguageContext";
 import translations from "../translatations/translations";
+import { registerUser } from "../services/authService";
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -48,8 +48,7 @@ function RegisterPage() {
         password: form.password,
       };
 
-      // Tembak endpoint Register backend kamu (Ganti URL-nya jika berbeda)
-      const response = await axios.post("http://localhost:5000/api/user/register", userData);
+      await registerUser(userData);
 
       // Jika berhasil, beri tahu user lalu arahkan ke halaman login
       alert(t.registerSuccess || "Registrasi berhasil! Silakan login.");
