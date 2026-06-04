@@ -29,8 +29,12 @@ const getPrediction = async (payload) => {
     if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
       console.warn('⚠️  ML Service belum aktif, menggunakan response dummy');
 
+      // 👇 SABUK PENGAMAN: Pastikan kwh berupa angka valid. Jika tidak, jadikan 0.
+      const safeKwh = Number(payload.kwh) || 0;
+
+      // 👇 KALKULASI AMAN: Gunakan safeKwh agar hasil tidak pernah menjadi NaN
       const dummyPrediction =
-        Math.round((payload.kwh * 1.05 + Math.random() * 10) * 10) / 10;
+        Math.round((safeKwh * 1.05 + Math.random() * 10) * 10) / 10;
 
       return {
         prediction: dummyPrediction,

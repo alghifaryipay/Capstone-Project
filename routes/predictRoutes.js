@@ -1,30 +1,26 @@
-const express =
-  require("express");
+const express = require("express");
+const router = express.Router();
 
-const router =
-  express.Router();
+const { protect } = require("../middlewares/authMiddleware"); 
 
 const {
   predict,
-} = require(
-  "../controllers/predictController"
-);
+} = require("../controllers/predictController");
 
 const {
   getPrediction,
-} = require(
-  "../controllers/predictionController"
-);
+} = require("../controllers/predictionController");
 
 router.post(
   "/",
+  protect, // Selipkan di sini!
   predict
 );
 
 router.get(
   "/latest",
+  protect, // Selipkan di sini juga!
   getPrediction
 );
 
-module.exports =
-  router;
+module.exports = router;

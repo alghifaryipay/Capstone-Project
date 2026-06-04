@@ -1,41 +1,51 @@
 const db = require("../config/database");
 
-const createPrediction = async (kwh, month, prediction) => {
+// Tambahkan userId sebagai parameter pertama
+const createPrediction = async (userId, kwh, month, prediction) => {
   const [result] = await db.query(
     `
       INSERT INTO predictions
       (
+        user_id,    /* Tambahkan kolom user_id */
         kwh,
         month,
         prediction
       )
-      VALUES (?, ?, ?)
+      VALUES (?, ?, ?, ?)
       `,
-    [kwh, month, prediction],
+    [userId, kwh, month, prediction] // Masukkan userId ke dalam array value
   );
 
   return result.insertId;
 };
 
-const getAllPredictions = async () => {
+// Tambahkan userId sebagai parameter
+const getAllPredictions = async (userId) => {
   const [rows] = await db.query(
     `
         SELECT *
         FROM predictions
+        WHERE user_id = ?    /* Filter hanya untuk user ini */
         ORDER BY created_at DESC
         `,
+    [userId]
   );
 
   return rows;
 };
 
-const getLatestPrediction = async () => {
-  const [rows] = await db.query(`
+// Tambahkan userId sebagai parameter
+const getLatestPrediction = async (userId) => {
+  const [rows] = await db.query(
+    `
         SELECT *
         FROM predictions
+        WHERE user_id = ?    /* Filter hanya untuk user ini */
         ORDER BY id DESC
         LIMIT 1
-      `);
+      `,
+    [userId]
+  );
 
   return rows[0];
 };
