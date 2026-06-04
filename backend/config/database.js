@@ -1,15 +1,39 @@
-const mysql = require("mysql2/promise");
+const fs = require("fs");
+const path = require("path");
+const { DatabaseSync } = require("node:sqlite");
 const config = require("./env");
 
-const pool = config.DATABASE_URL
-  ? mysql.createPool(config.DATABASE_URL)
-  : mysql.createPool({
-      host: process.env.DB_HOST || "localhost",
-      user: process.env.DB_USER || "root",
-      password: process.env.DB_PASSWORD || "",
-      database: process.env.DB_NAME || "smart_energy_db",
-      waitForConnections: true,
-      connectionLimit: 10,
-    });
+const dbPath = path.isAbsolute(config.SQLITE_DB_PATH)
+  ? config.SQLITE_DB_PATH
+  : path.resolve(__dirname, "..", config.SQLITE_DB_PATH);
 
-module.exports = pool;
+fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+
+const db = new DatabaseSync(dbPath);
+
+db.exec(`
+  PRAGMA foreign_keys = ON;
+
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fullname TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS predictions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    kwh REAL NOT NULL,
+    month TEXT,
+    prediction REAL NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_predictions_user_created
+    ON predictions(user_id, created_at DESC);
+`);
+
+module.exports = db;

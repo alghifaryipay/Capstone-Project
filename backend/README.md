@@ -2,8 +2,8 @@
 
 Jembatan antara React JS dan Python ML Service.
 
-```
-React JS  →  Backend Express (port 5000)  →  ML Service Python (port 8000)
+```text
+React JS -> Backend Express + SQLite (port 5000) -> ML Service Python (port 8000)
 ```
 
 ---
@@ -71,10 +71,10 @@ GET http://localhost:5000/api/user
 
 ```
 PORT=5000               ← Port server Express
-DATABASE_URL=           ← Isi URL database jika sudah ada
 ML_SERVICE_URL=http://localhost:8000   ← URL Python FastAPI
 AI_SAMPLE_DATA_PATH=../../ai/household_daily_clean.csv
 TARIFF_PER_KWH=1444.7
+SQLITE_DB_PATH=data/smart-energy.sqlite
 NODE_ENV=development
 ```
 
@@ -88,7 +88,8 @@ NODE_ENV=development
 ```
 backend/
 ├── config/
-│   └── env.js               ← Baca variabel dari .env
+│   ├── env.js               ← Baca variabel dari .env
+│   └── database.js          ← SQLite file database
 ├── routes/
 │   ├── index.js             ← Gabungan semua route
 │   ├── healthRoutes.js
@@ -105,7 +106,8 @@ backend/
 ├── middlewares/
 │   ├── validator.js         ← Validasi input dari React
 │   └── errorHandler.js     ← Tangkap semua error
-├── .env                     ← Konfigurasi (sudah ada, langsung pakai)
+├── .env                     ← Konfigurasi lokal
+├── data/                    ← SQLite database lokal, tidak ikut Git
 ├── app.js                   ← Setup middleware + routes
 ├── server.js                ← Entry point
 └── package.json

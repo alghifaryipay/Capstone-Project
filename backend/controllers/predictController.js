@@ -18,11 +18,18 @@ const predict = async (req, res, next) => {
 
     if (userId) {
       try {
+        const predictionValue = Number(result.prediction);
+        const inputKwh = Number(kwh);
+        const storedKwh = Number.isFinite(inputKwh) && inputKwh > 0
+          ? inputKwh
+          : predictionValue;
+        const forecastMonth = month || result.nextDate || null;
+
         await createPrediction(
           userId,
-          kwh || result.prediction,
-          month,
-          result.prediction
+          storedKwh,
+          forecastMonth,
+          predictionValue
         );
       } catch (dbError) {
         console.warn("Prediksi berhasil, tetapi penyimpanan DB gagal:", dbError.message);
@@ -36,7 +43,7 @@ const predict = async (req, res, next) => {
       data: {
         predictedUsage: result.prediction,
         predictedBill,
-        forecastMonth: month,
+        forecastMonth: month || result.nextDate || null,
         dailyKwh: result.dailyKwh,
         activePower: result.activePower,
         nextDate: result.nextDate,

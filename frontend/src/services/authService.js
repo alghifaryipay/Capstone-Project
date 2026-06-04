@@ -39,7 +39,6 @@ export const registerUser = async (data) => {
 };
 
 /* GET USER PROFILE (Untuk Header & Prediction Page) */
-/* GET USER PROFILE (LANGSUNG DARI DATABASE MySQL) */
 export const getUser = async () => {
   try {
     // Ambil karcis masuk (token)

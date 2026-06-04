@@ -39,7 +39,7 @@ function LoginPage() {
       // Tembak backend melalui authService
       const result = await loginUser(form);
 
-      // result.data berisi { token: "...", user: {...} } dari backend MySQL kamu
+      // result.data berisi { token: "...", user: {...} } dari backend
       const userData = result.data.user;
       const userToken = result.data.token;
 

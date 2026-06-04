@@ -107,7 +107,7 @@ const getUserProfile = async (req, res) => {
       process.env.JWT_SECRET || "secret_key_sementara",
     );
 
-    // 3. Cari user di MySQL berdasarkan email dari token yang dibongkar
+    // 3. Cari user di database berdasarkan email dari token yang dibongkar
     const user = await getUserByEmail(decoded.email);
     if (!user) {
       return res
@@ -115,7 +115,7 @@ const getUserProfile = async (req, res) => {
         .json({ status: "fail", message: "User tidak ditemukan di database." });
     }
 
-    // 4. Kembalikan data aslinya langsung dari MySQL (TIDAK TERMASUK PASSWORD)
+    // 4. Kembalikan data aslinya dari database (TIDAK TERMASUK PASSWORD)
     res.status(200).json({
       status: "success",
       data: {
