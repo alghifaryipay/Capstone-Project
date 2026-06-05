@@ -4,7 +4,6 @@ function RecommendationCard() {
   const { language } = useLanguage();
 
   const handleApply = () => {
-    // Memberikan alert notifikasi saat tombol ditekan
     const message = language === "id"
       ? "✅ Rekomendasi diterapkan! Sistem AI akan memonitor penggunaan AC Anda."
       : "✅ Recommendation applied! The AI system will monitor your AC usage.";
@@ -25,7 +24,6 @@ function RecommendationCard() {
         </p>
       </div>
       
-      {/* Tombol yang sudah diberi fungsi onClick */}
       <button
         onClick={handleApply}
         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all w-max active:scale-95 shadow-md"

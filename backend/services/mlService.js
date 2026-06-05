@@ -55,19 +55,11 @@ const buildAiPayload = (payload) => {
   };
 };
 
-/**
- * Mengirim request prediksi ke Python ML Service (FastAPI)
- *
- * @param {Object} payload - { kwh, month } dari FE atau { records } native AI.
- * @returns {Promise<{ prediction: number, status: string, source: string }>}
- *
- * Backend menjaga kontrak lama FE sambil menerjemahkannya ke kontrak FastAPI AI.
- */
 const getPrediction = async (payload) => {
   try {
     const aiPayload = buildAiPayload(payload);
     const response = await axios.post(`${ML_URL}/predict`, aiPayload, {
-      timeout: 10000, // 10 detik timeout
+      timeout: 10000,
       headers: { 'Content-Type': 'application/json' },
     });
     const aiResult = response.data;
@@ -88,14 +80,12 @@ const getPrediction = async (payload) => {
       source: 'ml-service',
     };
   } catch (error) {
-    // ─── ML Service belum aktif → pakai response dummy ───────────────
-    if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
-      console.warn('⚠️  ML Service belum aktif, menggunakan response dummy');
+    const serviceUnavailable =
+      error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT';
 
-      // 👇 SABUK PENGAMAN: Pastikan kwh berupa angka valid. Jika tidak, jadikan 0.
+    if (serviceUnavailable && config.ALLOW_DUMMY_PREDICTION) {
+      console.warn('ML Service belum aktif, menggunakan prediksi dummy.');
       const safeKwh = Number(payload.kwh) || 0;
-
-      // 👇 KALKULASI AMAN: Gunakan safeKwh agar hasil tidak pernah menjadi NaN
       const dummyPrediction =
         Math.round((safeKwh * 1.05 + Math.random() * 10) * 10) / 10;
 
@@ -110,7 +100,6 @@ const getPrediction = async (payload) => {
       };
     }
 
-    // ─── Error lain: lempar ke errorHandler ──────────────────────────
     const err = new Error(`ML Service Error: ${error.message}`);
     err.statusCode = 502;
     throw err;

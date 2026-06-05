@@ -1,6 +1,6 @@
-const {
-  getLatestPrediction,
-} = require("../models/predictionModel");
+const config = require("../config/env");
+const { getLatestPrediction } = require("../models/predictionModel");
+const { roundTo } = require("../utils/numbers");
 
 const getPrediction = async (req, res, next) => {
   try {
@@ -19,8 +19,8 @@ const getPrediction = async (req, res, next) => {
     res.json({
       status: "success",
       data: {
-        predictedUsage: Number(data.prediction),
-        predictedBill: Math.round(Number(data.prediction) * 1444),
+        predictedUsage: roundTo(data.prediction),
+        predictedBill: Math.round(Number(data.prediction) * config.TARIFF_PER_KWH),
         forecastMonth: data.month,
       },
     });

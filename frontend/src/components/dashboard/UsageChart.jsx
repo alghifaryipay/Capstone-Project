@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -9,48 +8,32 @@ import {
   Tooltip,
 } from "recharts";
 
-import translations from "../../translatations/translations";
 import { useLanguage } from "../../context/LanguageContext";
+import { getHistory } from "../../services/historyService";
+import { parseEnergy } from "../../utils/formatters";
 
 function UsageChart() {
   const { language } = useLanguage();
-  const t = translations[language];
-    
-  // State untuk menyimpan data dari database, awalnya kosong
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Mengambil data dari backend saat komponen dimuat
   useEffect(() => {
     const fetchChartData = async () => {
       try {
-        const token = localStorage.getItem("token");
-        
-        if (!token) {
-          setLoading(false);
-          return;
-        }
+        const response = await getHistory();
 
-        const response = await axios.get("http://localhost:5000/api/history", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.data && response.data.data) {
-          // 👇 INI ADALAH BAGIAN YANG DIPERBAIKI 👇
-          // Kita ubah data dari backend yang tadinya "250 kWh" menjadi angka murni 250
-          const chartData = response.data.data.map((item) => ({
-            month: item.month, // Tetap gunakan bulan dari backend
-            usage: parseFloat(item.usage) || 0 // Membuang teks "kWh" dan mengambil angkanya saja
+        if (response.data) {
+          const chartData = [...response.data].reverse().map((item) => ({
+            month: item.month,
+            usage: parseEnergy(item.usage),
           }));
-          
+
           setData(chartData);
-          // 👆 SELESAI 👆
         }
-        setLoading(false);
       } catch (error) {
         console.error("Gagal mengambil data grafik dari backend:", error);
+      } finally {
         setLoading(false);
       }
     };

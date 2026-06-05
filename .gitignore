@@ -12,9 +12,11 @@ frontend/dist/
 
 # Environment
 .env
+.env.production
 frontend/.env
 backend/.env
 ai/.venv/
+backups/
 
 # Local editor
 .vscode/

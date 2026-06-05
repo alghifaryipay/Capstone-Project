@@ -1,28 +1,27 @@
-const {
-  getAllPredictions,
-} = require("../models/predictionModel");
+const config = require("../config/env");
+const { getAllPredictions } = require("../models/predictionModel");
+const { roundTo } = require("../utils/numbers");
 
 const getHistory = async (req, res, next) => {
   try {
-    // 1. Ambil ID user dari request middleware auth kamu
     const userId = req.user.id;
-
-    // 2. Masukkan userId ke dalam pemanggilan database
     const rows = await getAllPredictions(userId);
 
     const history = rows.map((item) => {
-      const bill = Math.round(Number(item.prediction) * 1444);
+      const usage = roundTo(item.kwh);
+      const prediction = roundTo(item.prediction);
+      const bill = Math.round(prediction * config.TARIFF_PER_KWH);
       let status = "Low";
 
-      if (Number(item.prediction) > 400) {
+      if (prediction > 400) {
         status = "High";
-      } else if (Number(item.prediction) > 250) {
+      } else if (prediction > 250) {
         status = "Normal";
       }
 
       return {
         month: item.month,
-        usage: `${item.kwh} kWh`,
+        usage: `${usage} kWh`,
         bill,
         status,
       };

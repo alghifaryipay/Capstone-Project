@@ -8,6 +8,10 @@
     "dev:backend": "npm --prefix backend run dev",
     "dev:ai": "cd ai && PYTHONPATH=src .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000",
     "build:frontend": "npm --prefix frontend run build",
-    "start:backend": "npm --prefix backend start"
+    "start:backend": "npm --prefix backend start",
+    "deploy:config": "docker compose --env-file .env.production config",
+    "deploy:up": "docker compose --env-file .env.production up -d --build",
+    "deploy:down": "docker compose --env-file .env.production down",
+    "deploy:logs": "docker compose --env-file .env.production logs -f"
   }
 }

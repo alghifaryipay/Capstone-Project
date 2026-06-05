@@ -19,14 +19,9 @@ function Header() {
     const loadUser = async () => {
       try {
         const result = await getUser();
-        
-        // 👇 TAMBAHKAN BARIS INI UNTUK INVESTIGASI
-        console.log("Data Profil dari Backend:", result); 
-
         setUser(result.data);
       } catch (error) {
-        // 👇 TAMBAHKAN BARIS INI JUGA
-        console.error("Gagal mendapatkan profil:", error.message); 
+        console.error("Gagal mendapatkan profil:", error.message);
       }
     };
 

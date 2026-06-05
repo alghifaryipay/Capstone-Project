@@ -3,6 +3,7 @@ const mlService = require("../services/mlService");
 const {
   createPrediction,
 } = require("../models/predictionModel");
+const { roundTo } = require("../utils/numbers");
 
 const predict = async (req, res, next) => {
   try {
@@ -18,10 +19,10 @@ const predict = async (req, res, next) => {
 
     if (userId) {
       try {
-        const predictionValue = Number(result.prediction);
+        const predictionValue = roundTo(result.prediction);
         const inputKwh = Number(kwh);
         const storedKwh = Number.isFinite(inputKwh) && inputKwh > 0
-          ? inputKwh
+          ? roundTo(inputKwh)
           : predictionValue;
         const forecastMonth = month || result.nextDate || null;
 

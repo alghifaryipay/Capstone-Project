@@ -1,31 +1,16 @@
 const express = require("express");
 const router = express.Router();
 
-const { protect } = require("../middlewares/authMiddleware"); 
+const config = require("../config/env");
+const { protect } = require("../middlewares/authMiddleware");
+const { predict } = require("../controllers/predictController");
+const { getPrediction } = require("../controllers/predictionController");
 
-const {
-  predict,
-} = require("../controllers/predictController");
+router.post("/", protect, predict);
+router.get("/latest", protect, getPrediction);
 
-const {
-  getPrediction,
-} = require("../controllers/predictionController");
-
-router.post(
-  "/",
-  protect, // Selipkan di sini!
-  predict
-);
-
-router.post(
-  "/demo",
-  predict
-);
-
-router.get(
-  "/latest",
-  protect, // Selipkan di sini juga!
-  getPrediction
-);
+if (config.ENABLE_DEMO_ENDPOINT) {
+  router.post("/demo", predict);
+}
 
 module.exports = router;

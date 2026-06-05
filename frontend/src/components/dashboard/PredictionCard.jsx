@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
 
 import translations from "../../translatations/translations";
 import { useLanguage } from "../../context/LanguageContext";
+import { getHistory } from "../../services/historyService";
+import { formatEnergy, parseEnergy } from "../../utils/formatters";
 
 function PredictionCard() {
   const { language } = useLanguage();
   const t = translations[language];
 
-  // State untuk menyimpan data prediksi terbaru
   const [prediction, setPrediction] = useState({
     bill: 0,
     usage: 0,
@@ -17,32 +17,17 @@ function PredictionCard() {
     loading: true,
   });
 
-  // Ambil data dari endpoint /api/history yang sudah terbukti berhasil
   useEffect(() => {
     const fetchLatestPrediction = async () => {
       try {
-        const token = localStorage.getItem("token");
-        
-        if (!token) {
-          setPrediction((prev) => ({ ...prev, loading: false }));
-          return;
-        }
+        const response = await getHistory();
+        const historyArray = response.data;
 
-        // Kita gunakan endpoint history!
-        const response = await axios.get("http://localhost:5000/api/history", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const historyArray = response.data.data;
-
-        // Jika ada datanya, kita ambil urutan yang paling akhir
         if (historyArray && historyArray.length > 0) {
-          const latestData = historyArray[historyArray.length - 1];
+          const latestData = historyArray[0];
 
           setPrediction({
-            usage: parseFloat(latestData.usage) || 0, // Buang teks " kWh" jadi angka murni
+            usage: parseEnergy(latestData.usage),
             bill: Number(latestData.bill) || 0,
             month: latestData.month || "May 2026",
             loading: false,
@@ -69,7 +54,6 @@ function PredictionCard() {
         {t.predictionComplete}
       </p>
 
-      {/* Menampilkan Tagihan Dinamis */}
       <h1 className="text-6xl font-bold mt-4">
         {prediction.loading 
           ? "..." 
@@ -82,18 +66,20 @@ function PredictionCard() {
 
       <div className="grid grid-cols-3 gap-4 mt-8">
         
-        {/* Menampilkan Penggunaan Dinamis */}
         <StatCard
           title={t.predictedUsage}
-          value={prediction.loading ? "..." : `${prediction.usage} kWh`}
+          value={
+            prediction.loading
+              ? "..."
+              : formatEnergy(prediction.usage, language === "id" ? "id-ID" : "en-US")
+          }
         />
 
         <StatCard
           title={t.vsLastMonth}
-          value="+12%" // Bisa dibiarkan statis dulu
+          value="+12%"
         />
 
-        {/* Menampilkan Bulan Dinamis */}
         <StatCard
           title={t.forecast}
           value={prediction.loading ? "..." : prediction.month}

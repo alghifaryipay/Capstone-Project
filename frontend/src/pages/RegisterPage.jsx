@@ -16,7 +16,6 @@ function RegisterPage() {
     confirmPassword: "",
   });
   
-  // State untuk menampilkan pesan error/loading (Opsional tapi direkomendasikan)
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -25,14 +24,12 @@ function RegisterPage() {
       ...form,
       [e.target.name]: e.target.value,
     });
-    setErrorMsg(""); // Hapus pesan error saat user mulai mengetik lagi
+    setErrorMsg("");
   };
 
-  // 👈 2. Ubah handleSubmit menjadi async
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validasi Password
     if (form.password !== form.confirmPassword) {
       setErrorMsg(t.passwordNotMatch || "Password tidak cocok!");
       return;
@@ -41,7 +38,6 @@ function RegisterPage() {
     setLoading(true);
 
     try {
-      // Siapkan data yang mau dikirim ke backend (sesuaikan nama propertinya dengan yg diminta backend)
       const userData = {
         fullname: form.fullname,
         email: form.email,
@@ -50,16 +46,12 @@ function RegisterPage() {
 
       await registerUser(userData);
 
-      // Jika berhasil, beri tahu user lalu arahkan ke halaman login
       alert(t.registerSuccess || "Registrasi berhasil! Silakan login.");
       navigate("/login");
 
     } catch (error) {
       console.error("Error saat register:", error);
-      
-      // Ambil pesan error dari backend jika ada (misal: "Email sudah terdaftar")
-      const backendError = error.response?.data?.message || "Terjadi kesalahan saat registrasi.";
-      setErrorMsg(backendError);
+      setErrorMsg(error.message || "Terjadi kesalahan saat registrasi.");
     } finally {
       setLoading(false);
     }
@@ -68,7 +60,6 @@ function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f5f7fb] dark:bg-[#0f172a] p-6 transition-all">
       <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-[32px] p-8 shadow-xl transition-all">
-        {/* Logo & Header tetap sama */}
         <div className="flex items-center gap-3 mb-8">
           <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-2xl font-bold">
             ⚡
@@ -90,7 +81,6 @@ function RegisterPage() {
           {t.registerDesc || "Daftar untuk mulai memantau dan memprediksi konsumsi listrik Anda secara cerdas."}
         </p>
 
-        {/* 👇 Tampilkan Error Message jika ada */}
         {errorMsg && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mt-4">
             {errorMsg}
@@ -98,7 +88,6 @@ function RegisterPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-8">
-          {/* Input Fullname, Email, Password, ConfirmPassword tetap SAMA persis seperti kodemu */}
           <div>
             <label className="block mb-2 font-medium dark:text-white">{t.fullName}</label>
             <input type="text" name="fullname" placeholder={t.enterFullName || "Masukkan nama lengkap"} onChange={handleChange} required className="w-full border border-gray-200 dark:border-slate-700 dark:bg-slate-700 dark:text-white rounded-2xl p-4 outline-none focus:border-blue-500 transition-all"/>
@@ -119,7 +108,6 @@ function RegisterPage() {
             <input type="password" name="confirmPassword" placeholder={t.confirmYourPassword || "Konfirmasi password"} onChange={handleChange} required className="w-full border border-gray-200 dark:border-slate-700 dark:bg-slate-700 dark:text-white rounded-2xl p-4 outline-none focus:border-blue-500 transition-all"/>
           </div>
 
-          {/* Button Submit dengan status Loading */}
           <button 
             disabled={loading}
             className={`w-full py-4 rounded-2xl font-semibold transition-all shadow-lg text-white 

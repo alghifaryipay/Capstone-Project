@@ -12,6 +12,7 @@ import {
 
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorMessage from "../components/common/ErrorMessage";
+import { formatEnergy, parseEnergy } from "../utils/formatters";
 
 function HistoryPage() {
 
@@ -143,7 +144,7 @@ function HistoryPage() {
                         </td>
 
                         <td className="py-5">
-                          {item.usage}
+                          {formatEnergy(parseEnergy(item.usage))}
                         </td>
 
                         <td className="py-5">

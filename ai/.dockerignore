@@ -1,0 +1,10 @@
+.venv
+__pycache__
+*.pyc
+*.ipynb
+logs
+docs
+household_*.csv
+models/*_custom.keras
+artifacts/*_custom*
+artifacts/metrics*

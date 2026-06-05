@@ -1,7 +1,3 @@
-/**
- * GET /api/health
- * Memastikan server berjalan dengan baik
- */
 const getHealth = (req, res) => {
   res.status(200).json({
     status: 'success',

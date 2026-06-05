@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-
 import Sidebar from "../components/layout/Sidebar";
 import MobileSidebar from "../components/layout/MobileSidebar";
 import Header from "../components/layout/Header";
@@ -11,8 +9,9 @@ import RecommendationCard from "../components/dashboard/RecommendationCard";
 import WarningCard from "../components/dashboard/WarningCard";
 import NotificationCard from "../components/dashboard/NotificationCard";
 import translations from "../translatations/translations";
-
 import { useLanguage } from "../context/LanguageContext";
+import { getHistory } from "../services/historyService";
+import { formatEnergy, parseEnergy } from "../utils/formatters";
 
 function DashboardPage() {
   const { language } = useLanguage();
@@ -34,39 +33,29 @@ function DashboardPage() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-          navigate("/login");
-          return;
-        }
-
-        const response = await axios.get("http://localhost:5000/api/history", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const history = response.data.data;
+        const response = await getHistory();
+        const history = response.data;
 
         if (!history || history.length === 0) {
           setDashboardData((prev) => ({ ...prev, loading: false }));
           return;
         }
 
-        const current = history[history.length - 1];
-        const currUsage = parseFloat(current.usage) || 0;
+        const current = history[0];
+        const currUsage = parseEnergy(current.usage);
         const currBill = Number(current.bill) || 0;
-        
-        const currCarbon = Math.round(currUsage * 0.85);  
+
+        const currCarbon = Math.round(currUsage * 0.85);
         let currEff = 100 - Math.round((currUsage / 300) * 100);
         currEff = currEff < 5 ? 5 : (currEff > 100 ? 100 : currEff);
 
         let usageChange = 0, billChange = 0, efficiencyChange = 0, carbonChange = 0;
 
         if (history.length > 1) {
-          const previous = history[history.length - 2];
-          const prevUsage = parseFloat(previous.usage) || 0;
+          const previous = history[1];
+          const prevUsage = parseEnergy(previous.usage);
           const prevBill = Number(previous.bill) || 0;
-          
+
           const prevCarbon = Math.round(prevUsage * 0.85);
           let prevEff = 100 - Math.round((prevUsage / 300) * 100);
           prevEff = prevEff < 5 ? 5 : (prevEff > 100 ? 100 : prevEff);
@@ -115,12 +104,13 @@ function DashboardPage() {
         <Header />
 
         <div className="space-y-6 mt-6">
-          {/* ANALYTICS CARDS */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-            
             <InsightCard
               title={t.totalUsage || "Total Usage"}
-              value={dashboardData.loading ? "..." : `${dashboardData.usage} kWh`}
+              value={dashboardData.loading ? "..." : formatEnergy(
+                dashboardData.usage,
+                language === "id" ? "id-ID" : "en-US",
+              )}
               increase={formatChange(dashboardData.usageChange)}
             />
 
@@ -144,7 +134,6 @@ function DashboardPage() {
 
           </div>
 
-          {/* CHART & RECOMMENDATION */}
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div className="xl:col-span-2">
               <UsageChart />
@@ -152,13 +141,11 @@ function DashboardPage() {
             <RecommendationCard />
           </div>
 
-          {/* WARNING & NOTIFICATION */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <WarningCard />
             <NotificationCard />
           </div>
 
-          {/* BANNER */}
           <div className="bg-gradient-to-r from-blue-700 to-blue-500 rounded-[32px] p-8 text-white shadow-lg">
             <p className="text-sm opacity-80">
               {language === "id" ? "Monitoring AI Pintar" : "Smart AI Monitoring"}

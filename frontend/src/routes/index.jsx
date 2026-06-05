@@ -19,15 +19,10 @@ import ProtectedRoute from "./ProtectedRoute";
 function AppRoutes() {
   return (
     <Routes>
-
-      {/* LANDING PAGE */}
-
       <Route
         path="/"
         element={<LandingPage />}
       />
-
-      {/* AUTH */}
 
       <Route
         path="/login"
@@ -38,8 +33,6 @@ function AppRoutes() {
         path="/register"
         element={<RegisterPage />}
       />
-
-      {/* PROTECTED */}
 
       <Route
         path="/dashboard"

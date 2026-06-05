@@ -1,24 +1,13 @@
 import api from "./api";
 
-export const createPrediction =
-  async (data) => {
+export const createPrediction = async (data) => {
+  const response = await api.post("/predict", data);
 
-    const response =
-      await api.post(
-        "/predict",
-        data
-      );
-
-    return response.data;
+  return response.data;
 };
 
-export const getPredictions =
-  async () => {
+export const getPredictions = async () => {
+  const response = await api.get("/predict/latest");
 
-    const response =
-      await api.get(
-        "/predict/latest"
-      );
-
-    return response.data;
+  return response.data;
 };

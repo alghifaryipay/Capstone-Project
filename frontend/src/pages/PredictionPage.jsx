@@ -20,10 +20,11 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/layout/Sidebar";
-import axios from "axios";
 import translations from "../translatations/translations";
 import { getUser } from "../services/authService";
+import { getHistory } from "../services/historyService";
 import { useLanguage } from "../context/LanguageContext";
+import { formatEnergy, parseEnergy } from "../utils/formatters";
 
 function PredictionPage() {
   const navigate = useNavigate();
@@ -43,56 +44,39 @@ function PredictionPage() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // KITA GABUNGKAN PENGAMBILAN DATA AGAR 100% SINKRON
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token");
-        
-        if (!token) {
-          navigate("/login"); 
-          return;
-        }
+        const response = await getHistory();
+        const history = response.data;
 
-        // Ambil data dari history agar konsisten dengan Dashboard
-        const response = await axios.get("http://localhost:5000/api/history", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        const history = response.data.data;
-
-        // Jika data kosong, hentikan proses (biarkan 0)
         if (!history || history.length === 0) {
           return;
         }
 
-        // 1. SIAPKAN DATA GRAFIK
-        const chartData = history.map((item) => ({
+        const chartData = [...history].reverse().map((item) => ({
           month: item.month,
-          usage: parseFloat(item.usage) || 0 
+          usage: parseEnergy(item.usage),
         }));
         setLineData(chartData);
 
-        // 2. SIAPKAN DATA KARTU (Ambil data paling terakhir)
-        const current = history[history.length - 1];
-        const currUsage = parseFloat(current.usage) || 0;
+        const current = history[0];
+        const currUsage = parseEnergy(current.usage);
         const currBill = Number(current.bill) || 0;
-        
-        // 3. KALKULASI PERSENTASE ASLI (vs Bulan Lalu)
+
         let percentageChange = 0;
         if (history.length > 1) {
-          const previous = history[history.length - 2];
-          const prevUsage = parseFloat(previous.usage) || 0;
+          const previous = history[1];
+          const prevUsage = parseEnergy(previous.usage);
           if (prevUsage !== 0) {
             percentageChange = Math.round(((currUsage - prevUsage) / prevUsage) * 100);
           }
         }
 
-        // Simpan ke state
         setPrediction({
           totalUsage: currUsage,
           estimatedBill: currBill,
           forecastMonth: current.month || "",
-          percentage: percentageChange, // Sekarang persentasenya ASLI!
+          percentage: percentageChange,
         });
 
         setInsights([t.predictionComplete || "Prediksi selesai diproses oleh sistem."]);
@@ -119,14 +103,12 @@ function PredictionPage() {
     loadUser();
   }, [language, t, navigate]);
 
-  // Fungsi pembantu agar persentase positif ada tanda "+"
   const formatChange = (num) => (num > 0 ? `+${num}%` : `${num}%`);
 
   return (
     <div className="flex min-h-screen bg-[#f5f7fb] dark:bg-[#0f172a]">
       <Sidebar />
       <main className="flex-1">
-        {/* HEADER */}
         <div className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 px-8 py-5 flex items-center justify-between">
           <div>
             <h1 className="text-5xl font-bold dark:text-white">
@@ -159,7 +141,6 @@ function PredictionPage() {
         </div>
 
         <div className="p-8">
-          {/* HERO */}
           <div className="bg-gradient-to-r from-blue-700 to-blue-500 rounded-[30px] p-10 shadow-xl text-white">
             <div className="flex items-center gap-3">
               <CheckCircle2 size={24} />
@@ -175,17 +156,19 @@ function PredictionPage() {
               {t.estimatedNextBill || "Estimasi Tagihan Berikutnya"}
             </p>
             
-            {/* STATS */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
               <HeroCard
                 icon={<Zap size={22} />}
                 title={t.predictedUsage || (language === "id" ? "Penggunaan" : "Usage")}
-                value={`${prediction.totalUsage} kWh`}
+                value={formatEnergy(
+                  prediction.totalUsage,
+                  language === "id" ? "id-ID" : "en-US",
+                )}
               />
               <HeroCard
                 icon={<TrendingUp size={22} />}
                 title={t.vsLastMonth || (language === "id" ? "Banding Bulan Lalu" : "vs Last Month")}
-                value={formatChange(prediction.percentage)} // 👈 Menggunakan data asli sekarang!
+                value={formatChange(prediction.percentage)}
               />
               <HeroCard
                 icon={<Calendar size={22} />}
@@ -194,7 +177,6 @@ function PredictionPage() {
               />
             </div>
 
-            {/* BUTTON */}
             <div className="flex gap-5 mt-8 flex-wrap">
               <button className="bg-white text-blue-600 px-7 py-4 rounded-2xl font-semibold flex items-center gap-3">
                 <Download size={20} />
@@ -207,7 +189,6 @@ function PredictionPage() {
             </div>
           </div>
 
-          {/* CHART */}
           <div className="bg-white dark:bg-slate-900 rounded-[30px] p-8 shadow-lg mt-8">
             <h2 className="text-4xl font-bold dark:text-white">
               {t.currentVsPredicted || "Saat Ini vs Prediksi"}
@@ -249,9 +230,7 @@ function PredictionPage() {
             </div>
           </div>
 
-          {/* INSIGHT */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-            {/* AI */}
             <div className="bg-[#f4ebff] dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-[30px] p-8">
               <div className="flex items-center gap-5">
                 <div className="w-16 h-16 rounded-2xl bg-purple-600 text-white flex items-center justify-center">
@@ -272,7 +251,6 @@ function PredictionPage() {
               </ul>
             </div>
 
-            {/* RECOMMENDATION */}
             <div className="bg-[#ecfdf3] dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-[30px] p-8">
               <div className="flex items-center gap-5">
                 <div className="w-16 h-16 rounded-2xl bg-green-600 text-white flex items-center justify-center">
@@ -303,7 +281,6 @@ function PredictionPage() {
   );
 }
 
-// Komponen Pembantu
 function HeroCard({ icon, title, value }) {
   return (
     <div className="bg-white/10 rounded-[24px] p-6">

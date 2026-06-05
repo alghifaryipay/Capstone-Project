@@ -101,6 +101,8 @@ Endpoint demo tanpa auth untuk smoke test integrasi BE -> AI:
 POST /api/predict/demo
 ```
 
+Endpoint demo hanya aktif pada environment development.
+
 Contoh payload:
 
 ```json
@@ -121,3 +123,16 @@ Backend akan menerjemahkan payload tersebut ke format AI service berbasis 30 rec
 - Frontend React berhasil di-build.
 
 Detail progress AI ada di `ai/docs/progress_report.md`.
+
+## Deployment Hostinger VPS
+
+Stack production tersedia melalui Docker Compose:
+
+```bash
+cp .env.production.example .env.production
+docker compose --env-file .env.production up -d --build
+```
+
+Deployment menggunakan satu domain dengan HTTPS otomatis. Frontend meneruskan `/api` ke backend, backend mengakses AI melalui jaringan internal Docker, dan SQLite disimpan pada persistent volume.
+
+Panduan lengkap tersedia di [`docs/hostinger-vps-deployment.md`](docs/hostinger-vps-deployment.md).

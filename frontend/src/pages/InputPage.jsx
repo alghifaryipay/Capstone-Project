@@ -56,54 +56,37 @@ function InputPage() {
 
   const handlePredict = async () => {
     try {
-      // 1. Estimasi Daya (dalam kW) untuk masing-masing alat
-      // Angka ini bisa kamu sesuaikan dengan daya rata-rata alat di dunia nyata
-      const ac_kW = 0.4;        // 400 Watt
-      const tv_kW = 0.1;        // 100 Watt
-      const refrigerator_kW = 0.15; // 150 Watt
-      const lighting_kW = 0.05;     // 50 Watt
-      const washingMachine_kW = 0.3;// 300 Watt
+      const acKw = 0.4;
+      const tvKw = 0.1;
+      const refrigeratorKw = 0.15;
+      const lightingKw = 0.05;
+      const washingMachineKw = 0.3;
 
-      // 2. Kalkulasi total penggunaan per hari (kWh)
       const dailyKwh =
-        (Number(form.ac || 0) * ac_kW) +
-        (Number(form.tv || 0) * tv_kW) +
-        (Number(form.refrigerator || 0) * refrigerator_kW) +
-        (Number(form.lighting || 0) * lighting_kW) +
-        (Number(form.washingMachine || 0) * washingMachine_kW);
+        (Number(form.ac || 0) * acKw) +
+        (Number(form.tv || 0) * tvKw) +
+        (Number(form.refrigerator || 0) * refrigeratorKw) +
+        (Number(form.lighting || 0) * lightingKw) +
+        (Number(form.washingMachine || 0) * washingMachineKw);
 
-      // 3. Kalkulasi total per bulan (asumsi 30 hari)
-      const totalKwh = dailyKwh * 30;
+      const totalKwh = Number((dailyKwh * 30).toFixed(2));
 
-      // 4. Dapatkan nama bulan depan untuk dikirim ke backend (misal: "July")
       const nextMonth = new Date();
       nextMonth.setMonth(nextMonth.getMonth() + 1);
       const targetMonth = nextMonth.toLocaleString("en-US", { month: "long" });
 
-      // 5. Susun payload sesuai permintaan Backend (kwh & month)
       const payload = {
         kwh: totalKwh,
         month: targetMonth
       };
 
-      // 👇 TAMBAHKAN BARIS INI: Ambil token dari memori browser
-      const token = localStorage.getItem("token");
+      const response = await api.post("/predict", payload);
 
-      // 6. Kirim ke Backend menggunakan Axios
-      const response = await api.post("/predict", payload, {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        }
-      });
-
-      // 7. Simpan hasil dari response.data.data (karena backend kamu pakai bungkus 'data: {}')
       localStorage.setItem(
         "prediction-result",
         JSON.stringify(response.data.data)
       );
 
-      // 8. Pindah ke halaman hasil prediksi
       navigate("/prediction");
 
     } catch (error) {
@@ -125,7 +108,6 @@ function InputPage() {
 
         <Header />
 
-        {/* TITLE */}
         <div className="mb-10">
 
           <h1 className="text-5xl font-bold dark:text-white">
@@ -146,7 +128,6 @@ function InputPage() {
 
         </div>
 
-        {/* STEPPER */}
         <div className="flex items-center justify-between mb-14">
 
           <StepItem
@@ -203,10 +184,8 @@ function InputPage() {
 
         </div>
 
-        {/* FORM CARD */}
         <div className="bg-white dark:bg-slate-800 rounded-[36px] p-10 shadow-lg transition-all">
 
-          {/* STEP 1 */}
           {step === 1 && (
             <div>
 
@@ -259,7 +238,6 @@ function InputPage() {
             </div>
           )}
 
-          {/* STEP 2 */}
           {step === 2 && (
             <div>
 
@@ -341,7 +319,6 @@ function InputPage() {
             </div>
           )}
 
-          {/* STEP 3 */}
           {step === 3 && (
             <div>
 
@@ -425,7 +402,6 @@ function InputPage() {
             </div>
           )}
 
-          {/* BUTTONS */}
           <div className="flex items-center justify-between mt-16">
 
             <button

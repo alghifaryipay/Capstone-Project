@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const config = require("../config/env");
 
 const protect = async (req, res, next) => {
   let token;
@@ -8,17 +9,14 @@ const protect = async (req, res, next) => {
     req.headers.authorization.startsWith("Bearer")
   ) {
     try {
-      
       token = req.headers.authorization.split(" ")[1];
-
-      
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret_key_sementara");
+      const decoded = jwt.verify(token, config.JWT_SECRET);
 
       req.user = {
         id: decoded.id || decoded.userId,
       };
 
-      next(); 
+      next();
     } catch (error) {
       console.error("Gagal verifikasi token:", error.message);
       return res.status(401).json({
