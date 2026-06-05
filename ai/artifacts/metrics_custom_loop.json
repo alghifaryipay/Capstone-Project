@@ -1,0 +1,49 @@
+{
+  "baseline": {
+    "naive_forecast": {
+      "mae": 0.1901682599394466,
+      "rmse": 0.2713727771023085
+    },
+    "moving_average_7": {
+      "mae": 0.17091710479007538,
+      "rmse": 0.23154652466272446
+    }
+  },
+  "model": {
+    "mae_scaled": 0.05526972562074661,
+    "rmse_scaled": 0.07279080536894965,
+    "mae_original": 0.17360402643680573,
+    "rmse_original": 0.2286383307550483,
+    "mape_original": 0.20468778908252716,
+    "forecast_accuracy_from_mape": 0.7953122109174728,
+    "within_10_percent_accuracy": 0.3548387096774194
+  },
+  "target_accuracy": 0.85,
+  "target_mae_scaled": 0.02,
+  "meets_accuracy_from_mape": false,
+  "meets_within_10_percent_accuracy": false,
+  "meets_target_mae_scaled": false,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.0052807871252298355,
+      "train_mae": 0.07547136396169662,
+      "val_loss": 0.003840689081698656,
+      "val_mae": 0.06520646065473557
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.005233420059084892,
+      "train_mae": 0.07508992403745651,
+      "val_loss": 0.003794182790443301,
+      "val_mae": 0.06485407799482346
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.0052307890728116035,
+      "train_mae": 0.07537756860256195,
+      "val_loss": 0.003705181647092104,
+      "val_mae": 0.06440573185682297
+    }
+  ]
+}
